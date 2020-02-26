@@ -1,0 +1,16 @@
+schema {
+    query: RootQueries
+    mutation: RootMutations
+}
+
+type RootQueries {
+    findUserById(id: ID!): User
+    finAllUsers: [User]
+}
+
+type RootMutations {
+    login(tokenRequest: TokenRequest!): TokenResponse
+    saveUser(userRequest: UserRequest!): User
+    updateUser(existingId: ID!, userRequest: UserRequest!): User
+    deleteUserById(existingId: ID!): User
+}

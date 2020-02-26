@@ -1,0 +1,25 @@
+type User {
+    id: ID!
+    email: String!
+    active: Boolean
+    password: String!
+    lastName: String
+    firstName: String
+}
+
+type TokenResponse {
+    token: String!
+}
+
+input UserRequest {
+    email: String
+    password: String
+    lastName: String
+    firstName: String
+}
+
+input TokenRequest {
+    email: String
+    password: String
+}
+
