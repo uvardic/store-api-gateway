@@ -1,15 +1,18 @@
 package store.server.gateway.exception.handler;
 
 import graphql.ErrorType;
+import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.language.SourceLocation;
 import graphql.servlet.GraphQLErrorHandler;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Component
 public class CustomGraphQLErrorHandler implements GraphQLErrorHandler {
 
     @Override
@@ -24,27 +27,32 @@ public class CustomGraphQLErrorHandler implements GraphQLErrorHandler {
 
     private List<GraphQLError> filterClientErrors(List<GraphQLError> errors) {
         return errors.stream()
-                .filter(error -> error instanceof Throwable)
+                .filter(this::isClientError)
                 .collect(Collectors.toList());
     }
 
     private List<GraphQLError> filterServerErrors(List<GraphQLError> errors) {
         return errors.stream()
-                .filter(error -> !(error instanceof Throwable))
+                .filter(error -> !isClientError(error))
+                .map(GraphQLErrorAdapter::new)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isClientError(GraphQLError error) {
+        return !(error instanceof ExceptionWhileDataFetching || error instanceof Throwable);
     }
 
     private static class GraphQLErrorAdapter implements GraphQLError {
 
         private final GraphQLError error;
 
-        private GraphQLErrorAdapter(GraphQLError error) {
+        public GraphQLErrorAdapter(GraphQLError error) {
             this.error = error;
         }
 
         @Override
-        public String getMessage() {
-            return error.getMessage();
+        public Map<String, Object> getExtensions() {
+            return error.getExtensions();
         }
 
         @Override
@@ -68,8 +76,9 @@ public class CustomGraphQLErrorHandler implements GraphQLErrorHandler {
         }
 
         @Override
-        public Map<String, Object> getExtensions() {
-            return error.getExtensions();
+        public String getMessage() {
+            return (error instanceof ExceptionWhileDataFetching) ?
+                    ((ExceptionWhileDataFetching) error).getException().getMessage() : error.getMessage();
         }
 
     }

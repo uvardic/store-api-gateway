@@ -5,12 +5,12 @@ schema {
 
 type RootQueries {
     findUserById(id: ID!): User
-    finAllUsers: [User]
+    findAllUsers: [User]
 }
 
 type RootMutations {
-    login(tokenRequest: TokenRequest!): TokenResponse
+    deleteUserById(existingId: ID!): ID
     saveUser(userRequest: UserRequest!): User
     updateUser(existingId: ID!, userRequest: UserRequest!): User
-    deleteUserById(existingId: ID!): User
+    login(tokenRequest: TokenRequest!): TokenResponse
 }

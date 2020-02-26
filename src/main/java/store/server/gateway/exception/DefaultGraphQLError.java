@@ -3,18 +3,21 @@ package store.server.gateway.exception;
 import graphql.ErrorType;
 import graphql.GraphQLError;
 import graphql.language.SourceLocation;
-import org.springframework.http.HttpStatus;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DefaultGraphQLError extends RuntimeException implements GraphQLError {
 
-    private final HttpStatus statusCode;
+    private final Map<String, Object> extensions = new HashMap<>();
 
-    public DefaultGraphQLError(String message, HttpStatus statusCode) {
-        super(message);
+    protected DefaultGraphQLError(String message) {
+        super(message, null, false, false);
+    }
 
-        this.statusCode = statusCode;
+    protected void addExtension(String name, Object value) {
+        extensions.put(name, value);
     }
 
     @Override
@@ -24,14 +27,12 @@ public class DefaultGraphQLError extends RuntimeException implements GraphQLErro
 
     @Override
     public ErrorType getErrorType() {
-        switch (statusCode) {
-            case BAD_REQUEST:
-                return ErrorType.ValidationError;
-            case UNAUTHORIZED: case FORBIDDEN:
-                return ErrorType.OperationNotSupported;
-            default:
-                return ErrorType.DataFetchingException;
-        }
+        return ErrorType.DataFetchingException;
+    }
+
+    @Override
+    public Map<String, Object> getExtensions() {
+        return extensions;
     }
 
 }
