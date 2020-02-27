@@ -1,8 +1,10 @@
 package store.server.gateway.exception.handler;
 
+import lombok.SneakyThrows;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -10,10 +12,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
+import store.server.gateway.exception.DefaultGraphQLError;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 @Component
@@ -90,6 +94,22 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
         MediaType contentType = response.getHeaders().getContentType();
 
         return (contentType != null ? contentType.getCharset() : null);
+    }
+
+    @SneakyThrows
+    public void handleError(ResponseEntity<?> response, Class<? extends DefaultGraphQLError> errorClass) {
+        if (isError(response))
+            throw errorClass.getDeclaredConstructor(String.class).newInstance(getErrorMessage(response));
+    }
+
+    private boolean isError(ResponseEntity<?> response) {
+        return HANDLED_HTTP_ERROR_CODES.contains(response.getStatusCode());
+    }
+
+    private String getErrorMessage(ResponseEntity<?> response) {
+        LinkedHashMap<?, ?> responseBody = (LinkedHashMap<?, ?>) response.getBody();
+
+        return (String) (responseBody != null ? responseBody.get("message") : "No message provided!");
     }
 
 }

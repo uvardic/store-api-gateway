@@ -6,6 +6,9 @@ schema {
 type RootQueries {
     findUserById(id: ID!): User
     findAllUsers: [User]
+
+    findCategoryById(id: ID!): Category
+    findAllCategories: [Category]
 }
 
 type RootMutations {
@@ -13,4 +16,8 @@ type RootMutations {
     saveUser(userRequest: UserRequest!): User
     updateUser(existingId: ID!, userRequest: UserRequest!): User
     login(tokenRequest: TokenRequest!): TokenResponse
+
+    deleteCategoryById(existingId: ID!): ID
+    saveCategory(categoryRequest: CategoryRequest!): Category
+    updateCategory(existingId: ID, categoryRequest: CategoryRequest!): Category
 }

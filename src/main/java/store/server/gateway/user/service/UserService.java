@@ -1,6 +1,5 @@
 package store.server.gateway.user.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -9,14 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import store.server.gateway.exception.UserServiceGraphQLError;
 import store.server.gateway.exception.handler.CustomResponseErrorHandler;
+import store.server.gateway.mapper.CustomObjectMapper;
 import store.server.gateway.user.dto.TokenRequest;
 import store.server.gateway.user.dto.TokenResponse;
 import store.server.gateway.user.dto.User;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +23,9 @@ public class UserService {
 
     private final RestTemplate restTemplate;
 
-    private final ObjectMapper objectMapper;
+    private final CustomResponseErrorHandler responseErrorHandler;
+
+    private final CustomObjectMapper objectMapper;
 
     public Long deleteById(Long existingId) {
         ResponseEntity<?> response = restTemplate.exchange(
@@ -36,31 +35,22 @@ public class UserService {
                 Object.class
         );
 
-        if (isError(response))
-            throw new UserServiceGraphQLError(getMessage(response));
+        responseErrorHandler.handleError(response, UserServiceGraphQLError.class);
 
         return existingId;
     }
 
-    private boolean isError(ResponseEntity<?> response) {
-        return CustomResponseErrorHandler.HANDLED_HTTP_ERROR_CODES.contains(response.getStatusCode());
-    }
-
-    private String getMessage(ResponseEntity<?> response) {
-        LinkedHashMap<?, ?> responseBody = (LinkedHashMap<?, ?>) response.getBody();
-
-        return (String) (responseBody != null ? responseBody.get("message") : "No message provided!");
-    }
-
     public User save(User userRequest) {
-        ResponseEntity<?> response = restTemplate.postForEntity(
-                String.format("%s/save", USER_ENDPOINT), userRequest, Object.class
+        ResponseEntity<?> response = restTemplate.exchange(
+                String.format("%s/save", USER_ENDPOINT),
+                HttpMethod.POST,
+                new HttpEntity<>(userRequest),
+                Object.class
         );
 
-        if (isError(response))
-            throw new UserServiceGraphQLError(getMessage(response));
+        responseErrorHandler.handleError(response, UserServiceGraphQLError.class);
 
-        return objectMapper.convertValue(response.getBody(), User.class);
+        return objectMapper.mapResponse(response, User.class);
     }
 
     public User update(Long existingId, User userRequest) {
@@ -71,10 +61,9 @@ public class UserService {
                 Object.class
         );
 
-        if (isError(response))
-            throw new UserServiceGraphQLError(getMessage(response));
+        responseErrorHandler.handleError(response, UserServiceGraphQLError.class);
 
-        return objectMapper.convertValue(response.getBody(), User.class);
+        return objectMapper.mapResponse(response, User.class);
     }
 
     public User findById(Long id) {
@@ -82,10 +71,9 @@ public class UserService {
                 String.format("%s/id=%d", USER_ENDPOINT, id), Object.class
         );
 
-        if (isError(response))
-            throw new UserServiceGraphQLError(getMessage(response));
+        responseErrorHandler.handleError(response, UserServiceGraphQLError.class);
 
-        return objectMapper.convertValue(response.getBody(), User.class);
+        return objectMapper.mapResponse(response, User.class);
     }
 
     public List<User> findAll() {
@@ -93,17 +81,9 @@ public class UserService {
                 String.format("%s/all", USER_ENDPOINT), Object.class
         );
 
-        if (isError(response))
-            throw new UserServiceGraphQLError(getMessage(response));
+        responseErrorHandler.handleError(response, UserServiceGraphQLError.class);
 
-        return mapToUserList(response);
-    }
-
-    private List<User> mapToUserList(ResponseEntity<?> response) {
-        return ((List<?>) Objects.requireNonNull(response.getBody()))
-                .stream()
-                .map(user -> objectMapper.convertValue(user, User.class))
-                .collect(Collectors.toList());
+        return objectMapper.mapResponseToList(response, User.class);
     }
 
     public TokenResponse login(TokenRequest tokenRequest) {
@@ -111,10 +91,9 @@ public class UserService {
                 String.format("%s/login", USER_ENDPOINT), tokenRequest, Object.class
         );
 
-        if (isError(response))
-            throw new UserServiceGraphQLError(getMessage(response));
+        responseErrorHandler.handleError(response, UserServiceGraphQLError.class);
 
-        return objectMapper.convertValue(response.getBody(), TokenResponse.class);
+        return objectMapper.mapResponse(response, TokenResponse.class);
     }
 
 }

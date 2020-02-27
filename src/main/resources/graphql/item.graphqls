@@ -1,18 +1,18 @@
 type Item {
     id: ID!
     name: String!
+    description: String
     price: Price!
     postDate: String!
     categories: [Category]
-    description: String
 }
 
 type Price {
     value: Float!
-    onSale: Boolean
     currency: Currency!
     discount: Int
     discountedValue: Float
+    onSale: Boolean
 }
 
 enum Currency {
