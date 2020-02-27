@@ -30,7 +30,6 @@ type Category {
 input ItemRequest {
     name: String
     price: PriceRequest
-    postDate: String
     categories: [CategoryRequest]
     description: String
 }
