@@ -2,10 +2,12 @@ package store.server.gateway.category.graphql;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import store.server.gateway.category.dto.Category;
 import store.server.gateway.category.service.CategoryService;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @SuppressWarnings("unused")

@@ -9,6 +9,9 @@ type RootQueries {
 
     findCategoryById(id: ID!): Category
     findAllCategories: [Category]
+
+    findItemById(id: ID!): Item
+    findAllItems: [Item]
 }
 
 type RootMutations {
@@ -19,5 +22,9 @@ type RootMutations {
 
     deleteCategoryById(existingId: ID!): ID
     saveCategory(categoryRequest: CategoryRequest!): Category
-    updateCategory(existingId: ID, categoryRequest: CategoryRequest!): Category
+    updateCategory(existingId: ID!, categoryRequest: CategoryRequest!): Category
+
+    deleteItemById(existingId: ID!): ID
+    saveItem(itemRequest: ItemRequest!): Item
+    updateItem(existingId: ID!, itemRequest: ItemRequest!): Item
 }

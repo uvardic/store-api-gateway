@@ -23,13 +23,14 @@ enum Currency {
 
 type Category {
     id: ID!
-    name: String!
+    name: String
     description: String
 }
 
 input ItemRequest {
     name: String
     price: PriceRequest
+    postDate: String
     categories: [CategoryRequest]
     description: String
 }
@@ -41,6 +42,7 @@ input PriceRequest {
 }
 
 input CategoryRequest {
+    id: ID
     name: String
     description: String
 }

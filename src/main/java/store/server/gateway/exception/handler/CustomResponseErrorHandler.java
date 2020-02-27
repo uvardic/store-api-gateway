@@ -1,6 +1,7 @@
 package store.server.gateway.exception.handler;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+@Slf4j
 @Component
 public class CustomResponseErrorHandler implements ResponseErrorHandler {
 
